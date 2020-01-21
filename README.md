@@ -7,6 +7,8 @@ DNSMsg is released under the BSD license. Please see [LICENSE.md](https://github
 # Usage
 python3 nmapsearch.py [-h] [-f FILE] [-c] [-o {xml,xml_min,ipv4,mac,mac+ipv4}] [-p PATH] -r REGEX
 
+Option | Description
+------ | -----------
 -h, --help | Show help text  
 -f FILE, --file FILE | Specify input file(s)  
 -c, --case_sensitive  | Case sensitive search  
