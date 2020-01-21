@@ -12,11 +12,11 @@ import re
 
 # Define command line arguments
 parms=argparse.ArgumentParser()
-parms.add_argument("-f", "--file", type=str, required=False, default="*.xml", help="Input file")
+parms.add_argument("-f", "--file", type=str, required=False, default="*.xml", help="Specify input file(s)")
 parms.add_argument("-c", "--case_sensitive", required=False, action="store_true", help="Case sensitive search")
-parms.add_argument("-o", "--output", type=str, required=False, default="xml_min", choices=['xml','xml_min','ipv4',"mac","mac+ipv4"], help="Output format")
-parms.add_argument("-p", "--path", type=str, required=False, default=".", help="Input path")
-parms.add_argument("-r", "--regex", type=str, required=False, default="", help="Regex search string")
+parms.add_argument("-o", "--output", type=str, required=False, default="xml_min", choices=['xml','xml_min','ipv4',"mac","mac+ipv4"], help="Specify output format")
+parms.add_argument("-p", "--path", type=str, required=False, default=".", help="Specify location of file(s)")
+parms.add_argument("-r", "--regex", type=str, required=True, help="Search expression")
 args = vars(parms.parse_args())
 
 
