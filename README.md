@@ -2,7 +2,7 @@
 Search Nmap XML output files using regular expressions.
 
 # License
-DNSMsg is released under the BSD license. Please see [LICENSE.md](https://github.com/canidorichard/DNSMsg/blob/master/LICENSE.md) for more information.
+Nmapsearch is released under the BSD license. Please see [LICENSE.md](https://github.com/canidorichard/nmapsearch/blob/master/LICENSE.md) for more information.
 
 # Usage
 python3 nmapsearch.py [-h] [-f FILE] [-c] [-o {xml,xml_min,ipv4,mac,mac+ipv4}] [-p PATH] -r REGEX
