@@ -67,6 +67,22 @@ def procDocument(doc,regexp):
     # Check for regular expression match
     if regexp.search(host.toxml()):
 
+      # Get network addresses for host
+      addresses=host.getElementsByTagName("address")
+      addr_ipv4=""
+      addr_mac=""
+      for address in addresses:
+        if args['output'] == "xml_min": print(address.toxml())
+        addr=address.getAttribute("addr")
+        addrtype=address.getAttribute("addrtype")
+        if addrtype == "ipv4": addr_ipv4 = addr
+        if addrtype == "mac": addr_mac = addr
+
+      # Get hostnames
+      hostnames=host.getElementsByTagName("hostname")
+      for hostname in hostnames:
+        if args['output'] == "xml_min": print(hostname.toxml())
+
       # Output minimal XML
       if args['output'] == "xml_min":
         hostxml=host.toxml()
@@ -80,22 +96,11 @@ def procDocument(doc,regexp):
       # Output XML
       elif args['output'] == "xml":
         print(host.toxml())
-      else:
 
-        # Get network addresses for host
-        addresses=host.getElementsByTagName("address")
-        addr_ipv4=""
-        addr_mac=""
-        for address in addresses:
-          addr=address.getAttribute("addr")
-          addrtype=address.getAttribute("addrtype")
-          if addrtype == "ipv4": addr_ipv4 = addr
-          if addrtype == "mac": addr_mac = addr
-
-        # Output addresses
-        if args['output'] == "ipv4" and addr_ipv4 != "": print(addr_ipv4)
-        if args['output'] == "mac" and addr_mac != "": print(addr_mac)
-        if args['output'] == "mac+ipv4" and addr_ipv4 != "": print(addr_mac + "," + addr_ipv4) 
+      # Output addresses
+      if args['output'] == "ipv4" and addr_ipv4 != "": print(addr_ipv4)
+      if args['output'] == "mac" and addr_mac != "": print(addr_mac)
+      if args['output'] == "mac+ipv4" and addr_ipv4 != "": print(addr_mac + "|" + addr_ipv4) 
 
 
 if __name__ == '__main__':
