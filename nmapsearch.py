@@ -14,7 +14,7 @@ import re
 parms=argparse.ArgumentParser()
 parms.add_argument("-f", "--file", type=str, required=False, default="*.xml", help="Specify input file(s)")
 parms.add_argument("-c", "--case_sensitive", required=False, action="store_true", help="Case sensitive search")
-parms.add_argument("-o", "--output", type=str, required=False, default="xml_min", choices=['xml','xml_min','ipv4',"mac","mac+ipv4"], help="Specify output format")
+parms.add_argument("-o", "--output", type=str, required=False, default="xml_min", choices=['xml','xml_min','ipv4',"mac","mac+ipv4","ports"], help="Specify output format")
 parms.add_argument("-p", "--path", type=str, required=False, default=".", help="Specify location of file(s)")
 parms.add_argument("-r", "--regex", type=str, required=True, help="Search expression")
 args = vars(parms.parse_args())
@@ -101,6 +101,24 @@ def procDocument(doc,regexp):
       if args['output'] == "ipv4" and addr_ipv4 != "": print(addr_ipv4)
       if args['output'] == "mac" and addr_mac != "": print(addr_mac)
       if args['output'] == "mac+ipv4" and addr_ipv4 != "": print(addr_mac + "|" + addr_ipv4) 
+
+      # Output potential web pages
+      if args['output'] == "ports":
+        ports=host.getElementsByTagName("port")
+        for port in ports:
+          if regexp.search(port.toxml()):
+            portid=port.getAttribute("portid")
+            services=port.getElementsByTagName("service")
+            for service in services:
+              name=service.getAttribute("name")
+              tunnel=service.getAttribute("tunnel")
+            if not name == "http" and not name == "https":
+              if tunnel == "ssl":
+                name="https"
+              else:
+                name="http"
+            print(name+"|"+addr_ipv4+"|"+portid+"|"+tunnel)
+
 
 
 if __name__ == '__main__':
