@@ -44,7 +44,7 @@ def procFile(file):
   try:
     doc=xml.dom.minidom.parse(file)
     # Verify this is an Nmap output file
-    if doc.getElementsByTagName("host"):
+    if doc.getElementsByTagName("host") or doc.getElementsByTagName("nmaprun"):
       # Compile regular expression
       if not args['case_sensitive']:
         regexp = re.compile(args['regex'], re.IGNORECASE)
