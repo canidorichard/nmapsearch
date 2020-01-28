@@ -17,8 +17,11 @@ parms.add_argument("-c", "--case_sensitive", required=False, action="store_true"
 parms.add_argument("-o", "--output", type=str, required=False, default="xml_min", choices=['xml','xml_min','ipv4',"mac","mac+ipv4","ports"], help="Specify output format")
 parms.add_argument("-p", "--path", type=str, required=False, default=".", help="Specify location of file(s)")
 parms.add_argument("-r", "--regex", type=str, required=True, help="Search expression")
+parms.add_argument("-d", "--debug", required=False, action="store_true", help="Debug output")
 args = vars(parms.parse_args())
 
+# Globals
+errorsexist = False
 
 # Main processing
 def main(args):
@@ -36,9 +39,13 @@ def main(args):
   if args['output'] == "xml":
     print("</hosts>")
 
+  if(not args['debug'] and errorsexist): print("\nWARNING: Run with -d to see files that could not be processed", file=sys.stderr) 
+
 
 # Process file
 def procFile(file):
+
+  global errorsexist
 
   # Parse XML file
   try:
@@ -52,9 +59,11 @@ def procFile(file):
         regexp = re.compile(args['regex'])
       procDocument(doc,regexp) 
     else:
-      print("WARNING: " + file + " is not a valid Nmap output file", file=sys.stderr)
+      if args['debug']: print("WARNING: " + file + " is not a valid Nmap output file", file=sys.stderr)
+      errorsexist=True
   except:
-    print("WARNING: Unable to parse " + file, file=sys.stderr)
+    if args['debug']: print("WARNING: Unable to parse " + file, file=sys.stderr)
+    errorsexist=True
 
 
 # Process document
@@ -112,15 +121,19 @@ def procDocument(doc,regexp):
             for service in services:
               name=service.getAttribute("name")
               tunnel=service.getAttribute("tunnel")
-            if not name == "http" and not name == "https":
-              if tunnel == "ssl":
-                name="https"
-              else:
-                name="http"
-            print(name+"|"+addr_ipv4+"|"+portid+"|"+tunnel)
+            # Regex must be found in portid or service name
+            if(regexp.search(portid) or regexp.search(name)):
+              # If we are looking for http
+              if args["regex"] == "http":
+                if tunnel == "ssl":
+                  name="https"
+                else:
+                  name="http"
+              print(addr_ipv4+"|"+portid+"|"+name+"|"+tunnel)
 
 
 
 if __name__ == '__main__':
   # Execute main method 
   main(args)
+
