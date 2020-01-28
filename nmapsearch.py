@@ -14,10 +14,12 @@ import re
 parms=argparse.ArgumentParser()
 parms.add_argument("-f", "--file", type=str, required=False, default="*.xml", help="Specify input file(s)")
 parms.add_argument("-c", "--case_sensitive", required=False, action="store_true", help="Case sensitive search")
+parms.add_argument("-d", "--debug", required=False, action="store_true", help="Debug output")
 parms.add_argument("-o", "--output", type=str, required=False, default="xml_min", choices=['xml','xml_min','ipv4',"mac","mac+ipv4","ports"], help="Specify output format")
 parms.add_argument("-p", "--path", type=str, required=False, default=".", help="Specify location of file(s)")
 parms.add_argument("-r", "--regex", type=str, required=True, help="Search expression")
-parms.add_argument("-d", "--debug", required=False, action="store_true", help="Debug output")
+parms.add_argument("-s", "--port_state", required=False, default="open", choices=['all','closed','filtered','open'], help="Case sensitive search")
+
 args = vars(parms.parse_args())
 
 # Globals
@@ -117,6 +119,12 @@ def procDocument(doc,regexp):
         for port in ports:
           if regexp.search(port.toxml()):
             portid=port.getAttribute("portid")
+            portstate=""
+            states=port.getElementsByTagName("state")
+            for state in states:
+              portstate=state.getAttribute("state") 
+            name=""
+            tunnel=""
             services=port.getElementsByTagName("service")
             for service in services:
               name=service.getAttribute("name")
@@ -129,7 +137,8 @@ def procDocument(doc,regexp):
                   name="https"
                 else:
                   name="http"
-              print(addr_ipv4+"|"+portid+"|"+name+"|"+tunnel)
+              if (args['port_state'] == portstate or args['port_state'] == "all"):
+                print(addr_ipv4+"|"+portid+"|"+name+"|"+tunnel+"|"+portstate)
 
 
 
