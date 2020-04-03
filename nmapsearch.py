@@ -15,7 +15,7 @@ parms=argparse.ArgumentParser()
 parms.add_argument("-f", "--file", type=str, required=False, default="*.xml", help="Specify input file(s)")
 parms.add_argument("-c", "--case_sensitive", required=False, action="store_true", help="Case sensitive search")
 parms.add_argument("-d", "--debug", required=False, action="store_true", help="Debug output")
-parms.add_argument("-o", "--output", type=str, required=False, default="xml_min", choices=['xml','xml_min','ipv4',"mac","mac+ipv4","ports"], help="Specify output format")
+parms.add_argument("-o", "--output", type=str, required=False, default="xml_min", choices=['xml','xml_min','ipv4',"mac","mac+ipv4","ports","script"], help="Specify output format")
 parms.add_argument("-p", "--path", type=str, required=False, default=".", help="Specify location of file(s)")
 parms.add_argument("-r", "--regex", type=str, required=True, help="Search expression")
 parms.add_argument("-s", "--port_state", required=False, default="open", choices=['all','closed','filtered','open'], help="Case sensitive search")
@@ -41,7 +41,7 @@ def main(args):
   if args['output'] == "xml":
     print("</hosts>")
 
-  if(not args['debug'] and errorsexist): print("\nWARNING: Run with -d to see files that could not be processed", file=sys.stderr) 
+  if(not args['debug'] and errorsexist): print("\nWARNING: Run with -d to see files that could not be processed", file=sys.stderr)
 
 
 # Process file
@@ -57,9 +57,9 @@ def procFile(file):
       # Compile regular expression
       if not args['case_sensitive']:
         regexp = re.compile(args['regex'], re.IGNORECASE)
-      else: 
+      else:
         regexp = re.compile(args['regex'])
-      procDocument(doc,regexp) 
+      procDocument(doc,regexp)
     else:
       if args['debug']: print("WARNING: " + file + " is not a valid Nmap output file", file=sys.stderr)
       errorsexist=True
@@ -74,25 +74,24 @@ def procDocument(doc,regexp):
   # Extract hosts
   hosts=doc.getElementsByTagName("host")
   for host in hosts:
-    
+
     # Check for regular expression match
     if regexp.search(host.toxml()):
 
-      # Get network addresses for host
-      addresses=host.getElementsByTagName("address")
+      # Get host details
       addr_ipv4=""
       addr_mac=""
+      addresses=host.getElementsByTagName("address")
       for address in addresses:
-        if args['output'] == "xml_min": print(address.toxml())
         addr=address.getAttribute("addr")
         addrtype=address.getAttribute("addrtype")
         if addrtype == "ipv4": addr_ipv4 = addr
         if addrtype == "mac": addr_mac = addr
 
-      # Get hostnames
-      hostnames=host.getElementsByTagName("hostname")
-      for hostname in hostnames:
-        if args['output'] == "xml_min": print(hostname.toxml())
+      hostname=""
+      nametags=host.getElementsByTagName("hostname")
+      for nametag in nametags:
+        hostname=nametag.getAttribute("name")
 
       # Output minimal XML
       if args['output'] == "xml_min":
@@ -102,6 +101,10 @@ def procDocument(doc,regexp):
           idxStart = hostxml.rfind("<", 0, idxStart)
           idxEnd = m.end(0)
           idxEnd = hostxml.find(">", idxEnd) + 1
+          print("")
+          print("Host-FQDN: " + hostname)
+          print("Host-Addr: " + addr_ipv4)
+          print("")
           print(hostxml[idxStart:idxEnd])
 
       # Output XML
@@ -111,9 +114,9 @@ def procDocument(doc,regexp):
       # Output addresses
       if args['output'] == "ipv4" and addr_ipv4 != "": print(addr_ipv4)
       if args['output'] == "mac" and addr_mac != "": print(addr_mac)
-      if args['output'] == "mac+ipv4" and addr_ipv4 != "": print(addr_mac + "|" + addr_ipv4) 
+      if args['output'] == "mac+ipv4" and addr_ipv4 != "": print(addr_mac + "|" + addr_ipv4)
 
-      # Output potential web pages
+      # Output ports
       if args['output'] == "ports":
         ports=host.getElementsByTagName("port")
         for port in ports:
@@ -122,27 +125,36 @@ def procDocument(doc,regexp):
             portstate=""
             states=port.getElementsByTagName("state")
             for state in states:
-              portstate=state.getAttribute("state") 
+              portstate=state.getAttribute("state")
             name=""
             tunnel=""
             services=port.getElementsByTagName("service")
             for service in services:
               name=service.getAttribute("name")
               tunnel=service.getAttribute("tunnel")
+            if name == "http" and tunnel == "ssl":
+              name = "https"
+
             # Regex must be found in portid or service name
             if(regexp.search(portid) or regexp.search(name)):
-              # If we are looking for http
-              if args["regex"] == "http":
-                if tunnel == "ssl":
-                  name="https"
-                else:
-                  name="http"
               if (args['port_state'] == portstate or args['port_state'] == "all"):
                 print(addr_ipv4+"|"+portid+"|"+name+"|"+tunnel+"|"+portstate)
 
+      # Script output
+      if args['output'] == "script":
+        ports=host.getElementsByTagName("port")
+        for port in ports:
+          portid=port.getAttribute("portid")
+          scripts=port.getElementsByTagName("script")
+          for script in scripts:
+            if regexp.search(script.toxml()):
+              print("")
+              print("Host-FQDN: " + hostname + ":" + portid)
+              print("Host-Addr: " + addr_ipv4 + ":" + portid)
+              print("")
+              print(script.getAttribute("output"))
 
 
 if __name__ == '__main__':
-  # Execute main method 
+  # Execute main method
   main(args)
-
