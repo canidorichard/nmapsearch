@@ -5,7 +5,7 @@ Search Nmap XML output files using regular expressions.
 Nmapsearch is released under the BSD license. Please see [LICENSE.md](https://github.com/canidorichard/nmapsearch/blob/master/LICENSE.md) for more information.
 
 # Usage
-python3 nmapsearch.py [-h] [-f FILE] [-c] [-d] [-o {xml,xml_min,ipv4,mac,mac+ipv4,ports}] [-p PATH] -r REGEX [-s {all,closed,filtered,open}]
+python3 nmapsearch.py [-h] [-f FILE] [-c] [-d] [-o {xml,xml_min,ipv4,mac,mac+ipv4,ports,script}] [-p PATH] -r REGEX [-s {all,closed,filtered,open}]
 
 Option | Description
 ------ | -----------
