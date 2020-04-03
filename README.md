@@ -5,7 +5,7 @@ Search Nmap XML output files using regular expressions.
 Nmapsearch is released under the BSD license. Please see [LICENSE.md](https://github.com/canidorichard/nmapsearch/blob/master/LICENSE.md) for more information.
 
 # Usage
-python3 nmapsearch.py [-h] [-f FILE] [-c] [-o {xml,xml_min,ipv4,mac,mac+ipv4}] [-p PATH] -r REGEX
+python3 nmapsearch.py [-h] [-f FILE] [-c] [-o {xml,xml_min,ipv4,mac,mac+ipv4,ports,script}] [-p PATH] -r REGEX
 
 Option | Description
 ------ | -----------
@@ -17,6 +17,8 @@ Option | Description
 | xml_min  - Output the element containing the regex match as XML  
 | ipv4     - Output only the IP address of the matching host record  
 | mac      - Output the MAC address of the matching host record  
-| mac+ipv4 - Output MAC address and IP address 
+| mac+ipv4 - Output MAC address and IP address
+| ports    - Output list of ports where port or service name match regex
+| script   - Output script data matching regex
 -p PATH, --path PATH |Specify location of file(s)  
 -r REGEX, --regex REGEX | Search expression  
